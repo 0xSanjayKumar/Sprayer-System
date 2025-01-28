@@ -51,8 +51,8 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, servoPulseTop_Pin|servoPulseBase_Pin|servoDirTop_Pin|servoDirBase_Pin
-                          |led1_Pin|led2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1|servoDirTop_Pin|servoDirBase_Pin|led1_Pin
+                          |led2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, servoEnableTop_Pin|servoEnableBase_Pin, GPIO_PIN_RESET);
@@ -60,10 +60,10 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, solenoidTop_Pin|solenoidBase_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : servoPulseTop_Pin servoPulseBase_Pin servoDirTop_Pin servoDirBase_Pin
-                           led1_Pin led2_Pin */
-  GPIO_InitStruct.Pin = servoPulseTop_Pin|servoPulseBase_Pin|servoDirTop_Pin|servoDirBase_Pin
-                          |led1_Pin|led2_Pin;
+  /*Configure GPIO pins : PA1 servoDirTop_Pin servoDirBase_Pin led1_Pin
+                           led2_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_1|servoDirTop_Pin|servoDirBase_Pin|led1_Pin
+                          |led2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

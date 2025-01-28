@@ -21,7 +21,7 @@
 #include "adc.h"
 
 /* USER CODE BEGIN 0 */
-
+int isADCFinished = 0;
 /* USER CODE END 0 */
 
 ADC_HandleTypeDef hadc1;
@@ -44,11 +44,11 @@ void MX_ADC1_Init(void)
   /** Common config
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV4;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV64;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.NbrOfConversion = 7;
@@ -150,12 +150,12 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
   */
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
     PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
-    PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_HSE;
+    PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_HSI;
     PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
     PeriphClkInit.PLLSAI1.PLLSAI1N = 8;
     PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV7;
     PeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV2;
-    PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV2;
+    PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV8;
     PeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_ADC1CLK;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     {
@@ -202,7 +202,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
     hdma_adc1.Init.Mode = DMA_NORMAL;
-    hdma_adc1.Init.Priority = DMA_PRIORITY_MEDIUM;
+    hdma_adc1.Init.Priority = DMA_PRIORITY_HIGH;
     if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)
     {
       Error_Handler();

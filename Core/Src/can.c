@@ -47,7 +47,7 @@ void MX_CAN1_Init(void)
 
   /* USER CODE END CAN1_Init 1 */
   hcan1.Instance = CAN1;
-  hcan1.Init.Prescaler = 32;
+  hcan1.Init.Prescaler = 16; // prescaler for 400kbs
   hcan1.Init.Mode = CAN_MODE_NORMAL;
   hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
   hcan1.Init.TimeSeg1 = CAN_BS1_2TQ;
@@ -66,7 +66,7 @@ void MX_CAN1_Init(void)
   CAN_FilterTypeDef canfilterconfig;
 
   canfilterconfig.FilterActivation = CAN_FILTER_ENABLE;
-  canfilterconfig.FilterBank = 18;
+  canfilterconfig.FilterBank = 0;
   canfilterconfig.FilterFIFOAssignment = CAN_FILTER_FIFO0;
   canfilterconfig.FilterIdHigh = 0x0000;
   canfilterconfig.FilterIdLow = 0x0000;
@@ -74,7 +74,7 @@ void MX_CAN1_Init(void)
   canfilterconfig.FilterMaskIdLow = 0x0000;
   canfilterconfig.FilterMode = CAN_FILTERMODE_IDMASK;
   canfilterconfig.FilterScale = CAN_FILTERSCALE_32BIT;
-  canfilterconfig.SlaveStartFilterBank = 20;
+  canfilterconfig.SlaveStartFilterBank = 14;
 
   HAL_CAN_ConfigFilter(&hcan1, &canfilterconfig);
 
@@ -107,7 +107,7 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef* canHandle)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* CAN1 interrupt Init */
-    HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
   /* USER CODE BEGIN CAN1_MspInit 1 */
 
@@ -144,7 +144,7 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef* canHandle)
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
 	HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &RxHeader, RxData);
 	if(RxHeader.DLC == 8){
-		if(RxHeader.StdId == 0x00000F62){
+		if(RxHeader.StdId == 0x00000762){
 			sprayerSystemDataFlag = 1;
 		}
 	}

@@ -63,10 +63,6 @@ void Error_Handler(void);
 #define pcbVoltageMon5_GPIO_Port GPIOC
 #define pcbVoltageMon3_Pin GPIO_PIN_2
 #define pcbVoltageMon3_GPIO_Port GPIOC
-#define servoPulseTop_Pin GPIO_PIN_0
-#define servoPulseTop_GPIO_Port GPIOA
-#define servoPulseBase_Pin GPIO_PIN_1
-#define servoPulseBase_GPIO_Port GPIOA
 #define servoDirTop_Pin GPIO_PIN_2
 #define servoDirTop_GPIO_Port GPIOA
 #define servoDirBase_Pin GPIO_PIN_3

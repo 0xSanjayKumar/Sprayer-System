@@ -24,6 +24,7 @@
 #include "dma.h"
 #include "i2c.h"
 #include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -51,6 +52,7 @@
 
 /* USER CODE BEGIN PV */
 extern uint8_t TxData[8];
+extern uint8_t isADCFinished;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -101,10 +103,9 @@ int main(void)
   MX_CAN1_Init();
   MX_I2C1_Init();
   MX_SPI2_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  HAL_CAN_Start(&hcan1);
-  //Activate the notification
-  HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
@@ -145,15 +146,16 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = 64;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = 1;
-  RCC_OscInitStruct.PLL.PLLN = 20;
+  RCC_OscInitStruct.PLL.PLLN = 16;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -168,7 +170,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
   {
     Error_Handler();
   }
@@ -176,6 +178,53 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+void Set_Motor_Direction(uint8_t direction) {
+    if (direction == 1) {
+        HAL_GPIO_WritePin(servoDirTop_GPIO_Port, servoDirTop_Pin, GPIO_PIN_SET); // Forward
+        HAL_GPIO_WritePin(servoDirBase_GPIO_Port, servoDirBase_Pin, GPIO_PIN_SET);
+    } else {
+        HAL_GPIO_WritePin(servoDirTop_GPIO_Port, servoDirTop_Pin, GPIO_PIN_SET); // Forward
+        HAL_GPIO_WritePin(servoDirBase_GPIO_Port, servoDirBase_Pin, GPIO_PIN_SET);
+    }
+    HAL_Delay(1); // Wait for at least 5 µs (adjust as needed)
+}
+
+void Enable_Motor(uint8_t enable) {
+    if (enable == 1) {
+        HAL_GPIO_WritePin(servoEnableTop_GPIO_Port, servoEnableTop_Pin, GPIO_PIN_SET); // Enable motor
+        HAL_GPIO_WritePin(servoEnableBase_GPIO_Port, servoEnableBase_Pin, GPIO_PIN_SET); // Enable motor
+    } else {
+        HAL_GPIO_WritePin(servoEnableTop_GPIO_Port, servoEnableTop_Pin, GPIO_PIN_RESET); // Enable motor
+        HAL_GPIO_WritePin(servoEnableBase_GPIO_Port, servoEnableBase_Pin, GPIO_PIN_RESET); // Enable motor
+    }
+}
+
+void Generate_Steps(uint32_t num_steps, uint8_t direction) {
+    // Set the direction
+    Set_Motor_Direction(direction);
+
+    // Enable the motor
+    Enable_Motor(1);
+
+    // Enable PWM
+    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+
+    // Generate the required number of steps
+    for (uint32_t i = 0; i < num_steps; i++) {
+        // Wait for the pulse width (10 µs)
+        HAL_Delay(1); // Adjust delay as needed
+    }
+
+    // Disable PWM
+    HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
+
+    // Disable the motor (optional)
+    Enable_Motor(0);
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
+	isADCFinished = 1;
+}
 /* USER CODE END 4 */
 
 /**
