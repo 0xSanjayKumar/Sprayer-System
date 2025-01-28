@@ -1,0 +1,11 @@
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/freertos.c:97:6:vApplicationGetIdleTaskMemory	24	static
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/freertos.c:111:6:MX_FREERTOS_Init	184	static
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/freertos.c:163:6:StartDefaultTask	16	static
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/freertos.c:176:6:SendFeedbackDataOverCAN	48	static
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/freertos.c:203:6:SendADCDataOverCAN	56	static
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/freertos.c:230:6:processADCData	4	static
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/freertos.c:237:6:StartMonitoringTask	16	static
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/freertos.c:253:6:StartMotorControlTask	24	static
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/freertos.c:270:6:StartCanTask	16	static
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/freertos.c:302:6:StartSensorTask	16	static
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/freertos.c:311:6:StartSwitchMonitoringTask	64	static

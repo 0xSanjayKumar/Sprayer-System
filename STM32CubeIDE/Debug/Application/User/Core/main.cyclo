@@ -1,0 +1,8 @@
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/main.c:75:5:main	1
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/main.c:134:6:SystemClock_Config	4
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/main.c:181:6:Set_Motor_Direction	2
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/main.c:192:6:Enable_Motor	2
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/main.c:202:6:Generate_Steps	2
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/main.c:225:6:HAL_ADC_ConvCpltCallback	1
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/main.c:238:6:HAL_TIM_PeriodElapsedCallback	2
+C:/Users/Yash/OneDrive/Documents/STM32/my_project1/Core/Src/main.c:255:6:Error_Handler	1
