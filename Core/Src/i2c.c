@@ -136,5 +136,57 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
 }
 
 /* USER CODE BEGIN 1 */
+// Function to write a byte to EEPROM
+HAL_StatusTypeDef EEPROM_WriteByte(uint16_t memAddress, uint8_t data) {
+    uint8_t buffer[3];
+    buffer[0] = (memAddress >> 8) & 0xFF; // High byte of memory address
+    buffer[1] = memAddress & 0xFF;        // Low byte of memory address
+    buffer[2] = data;                     // Data byte
 
+    return HAL_I2C_Master_Transmit(&hi2c1, EEPROM_ADDR, buffer, 3, HAL_MAX_DELAY);
+}
+
+// Function to read a byte from EEPROM
+HAL_StatusTypeDef EEPROM_ReadByte(uint16_t memAddress, uint8_t *data) {
+    uint8_t addressBuffer[2];
+    addressBuffer[0] = (memAddress >> 8) & 0xFF; // High byte of memory address
+    addressBuffer[1] = memAddress & 0xFF;        // Low byte of memory address
+
+    // Send memory address
+    if (HAL_I2C_Master_Transmit(&hi2c1, EEPROM_ADDR, addressBuffer, 2, HAL_MAX_DELAY) != HAL_OK) {
+        return HAL_ERROR;
+    }
+
+    // Read data from EEPROM
+    return HAL_I2C_Master_Receive(&hi2c1, EEPROM_ADDR, data, 1, HAL_MAX_DELAY);
+}
+
+// Function to write a block of data to EEPROM (Page Write)
+HAL_StatusTypeDef EEPROM_WritePage(uint16_t memAddress, uint8_t *data, uint16_t length) {
+    uint8_t buffer[66]; // 2 bytes for address + 64 bytes data
+    if (length > 64) return HAL_ERROR; // Page size limit
+
+    buffer[0] = (memAddress >> 8) & 0xFF; // High byte
+    buffer[1] = memAddress & 0xFF;        // Low byte
+    memcpy(&buffer[2], data, length);     // Copy data
+
+    HAL_StatusTypeDef status = HAL_I2C_Master_Transmit(&hi2c1, EEPROM_ADDR, buffer, length + 2, HAL_MAX_DELAY);
+    HAL_Delay(5); // EEPROM Write Cycle Time (5ms)
+    return status;
+}
+
+// Function to read a block of data from EEPROM
+HAL_StatusTypeDef EEPROM_ReadBlock(uint16_t memAddress, uint8_t *data, uint16_t length) {
+    uint8_t addressBuffer[2];
+    addressBuffer[0] = (memAddress >> 8) & 0xFF;
+    addressBuffer[1] = memAddress & 0xFF;
+
+    // Send memory address
+    if (HAL_I2C_Master_Transmit(&hi2c1, EEPROM_ADDR, addressBuffer, 2, HAL_MAX_DELAY) != HAL_OK) {
+        return HAL_ERROR;
+    }
+
+    // Read data
+    return HAL_I2C_Master_Receive(&hi2c1, EEPROM_ADDR, data, length, HAL_MAX_DELAY);
+}
 /* USER CODE END 1 */

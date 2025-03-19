@@ -25,7 +25,27 @@
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
 
+void TIM3_Init(void) {
+    __HAL_RCC_TIM3_CLK_ENABLE();  // Enable Timer 3 Clock
+
+    htim3.Instance = TIM3;
+    htim3.Init.Prescaler = 79;   // 80MHz / (79+1) = 1MHz (1 tick = 1µs)
+    htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim3.Init.Period = 0xFFFF;  // Maximum count before overflow
+    htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+
+    HAL_TIM_Base_Init(&htim3);
+    HAL_TIM_Base_Start(&htim3);
+}
+
+void Delay_us(uint16_t us) {
+    __HAL_TIM_SET_COUNTER(&htim3, 0);  // Reset the counter
+
+    while (__HAL_TIM_GET_COUNTER(&htim3) < us);  // Wait for 'us' microseconds
+}
 /* TIM2 init function */
 void MX_TIM2_Init(void)
 {

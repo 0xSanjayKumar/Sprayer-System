@@ -41,7 +41,9 @@ extern SPI_HandleTypeDef hspi2;
 void MX_SPI2_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+uint8_t TLE9255_Init(void);
+uint8_t TLE9255_ReadReg(uint8_t reg);
+uint8_t TLE9255_WriteReg(uint8_t reg,uint8_t value);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

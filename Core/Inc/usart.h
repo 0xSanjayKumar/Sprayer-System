@@ -41,7 +41,9 @@ extern UART_HandleTypeDef huart3;
 void MX_USART3_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+void process_command(char * cmd);
+uint8_t pid_Calc(uint8_t ID);
+uint8_t checksum_Calc(uint8_t PID, uint8_t *data, uint8_t size);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
