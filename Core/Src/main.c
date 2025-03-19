@@ -40,7 +40,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define TEST
+#define RX_BUFFER_SIZE 8
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -53,6 +54,8 @@
 /* USER CODE BEGIN PV */
 extern uint8_t TxData[8];
 extern uint8_t isADCFinished;
+extern DMA_HandleTypeDef hdma_usart3_rx;
+extern DMA_HandleTypeDef hdma_usart3_tx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -64,7 +67,10 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+volatile uint8_t data_received = 0;
 extern int sprayerSystemDataFlag;
+uint8_t rx_buffer[RX_BUFFER_SIZE];
+//uint8_t *tx_buffer;
 //uint32_t TxMailbox;
 /* USER CODE END 0 */
 
@@ -104,24 +110,71 @@ int main(void)
   MX_I2C1_Init();
   MX_SPI2_Init();
   MX_TIM2_Init();
+  TIM3_Init();
+//  DWT_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_GPIO_WritePin(canWakeUp_GPIO_Port, canWakeUp_Pin, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
+#ifndef TEST
   MX_FREERTOS_Init();
 
   /* Start scheduler */
   osKernelStart();
+#endif
 
   /* We should never get here as control is now taken by the scheduler */
+#ifdef TEST
+  char response[50];
+  snprintf(response, sizeof(response), "Hello to Sprayer System : %lu\n",HAL_RCC_GetPCLK1Freq());
+  HAL_UART_Transmit(&huart3, (uint8_t*)response, strlen(response), HAL_MAX_DELAY);
+//  HAL_UART_Transmit(&huart1, (uint8_t*)response, strlen(response), HAL_MAX_DELAY);
 
+  for(int i = 0; i<5; i++){
+	HAL_GPIO_TogglePin(led1_GPIO_Port, led1_Pin);
+	HAL_GPIO_TogglePin(led2_GPIO_Port, led2_Pin);
+	HAL_Delay(1000);
+  }
+
+  HAL_Delay(50);
+  uint8_t readData = TLE9255_ReadReg(0x01);
+
+  memset(response, 0, sizeof(response));
+  snprintf(response, sizeof(response), "Writing Over SPI\n");
+  HAL_UART_Transmit(&huart3, (uint8_t*)response, strlen(response), HAL_MAX_DELAY);
+  HAL_Delay(50);
+  uint8_t spiData = TLE9255_Init();
+  HAL_Delay(50);
+  memset(response, 0, sizeof(response));
+  snprintf(response, sizeof(response), "Initializing CAN\n");
+  HAL_UART_Transmit(&huart3, (uint8_t*)response, strlen(response), HAL_MAX_DELAY);
+  HAL_Delay(50);
+  HAL_CAN_Start(&hcan1);
+  for(int i =0; i< 5; i++){
+	  snprintf(response, sizeof(response), "Sending CAN Data: %d\n", i);
+	  HAL_UART_Transmit(&huart3, (uint8_t*)response, strlen(response), HAL_MAX_DELAY);
+	  send_can_data();
+	  HAL_Delay(2000);
+  }
+  //HAL_UART_Receive_DMA(&huart1, (uint8_t*)rx_buffer, RX_BUFFER_SIZE);
+#endif
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-
+#ifdef TEST
+	  if(data_received == 1){
+		  check_uart_data();
+		  data_received = 0;
+	  }
+	  int val = HAL_GPIO_ReadPin(proximityMinTop_GPIO_Port, proximityMinTop_Pin);
+	  if(val == 0){
+		sprintf(response, "Proximity Sensor: %d\n", val);
+		HAL_UART_Transmit(&huart3, (uint8_t*)response, strlen(response), HAL_MAX_DELAY);
+	  }
+#endif
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -131,6 +184,62 @@ int main(void)
   * @brief System Clock Configuration
   * @retval None
   */
+//void SystemClock_Config(void)
+//{
+//  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+//  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+//
+//  /** Configure the main internal regulator output voltage
+//  */
+//  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//
+//  /** Initializes the RCC Oscillators according to the specified parameters
+//  * in the RCC_OscInitTypeDef structure.
+//  */
+//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+//  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+//  RCC_OscInitStruct.HSICalibrationValue = 64;
+//  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+//  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+//  RCC_OscInitStruct.PLL.PLLM = 1;
+//  RCC_OscInitStruct.PLL.PLLN = 16;
+//  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
+//  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+//  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV4;
+//  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//
+//  /** Initializes the CPU, AHB and APB buses clocks
+//  */
+//  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+//                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+//  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+//  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+//  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+//  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+//
+//  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//}
+
+void DWT_Init(void) {
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;  // Enable DWT
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;  // Enable cycle counter
+}
+
+void Delay_ns(uint32_t ns) {
+    uint32_t cycles = (ns * (SystemCoreClock / 1000000000));  // Convert ns to cycles
+    uint32_t start = DWT->CYCCNT;  // Get current cycle count
+    while ((DWT->CYCCNT - start) < cycles);  // Wait for the required cycles
+}
+
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -146,16 +255,15 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = 64;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 1;
-  RCC_OscInitStruct.PLL.PLLN = 16;
+  RCC_OscInitStruct.PLL.PLLN = 20;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV4;
+  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -167,16 +275,22 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
   {
     Error_Handler();
   }
 }
-
 /* USER CODE BEGIN 4 */
+
+
+void check_uart_data() {
+	process_command(&rx_buffer[0]);
+}
+
+
 
 void Set_Motor_Direction(uint8_t direction) {
     if (direction == 1) {
@@ -225,6 +339,20 @@ void Generate_Steps(uint32_t num_steps, uint8_t direction) {
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 	isADCFinished = 1;
 }
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	char response[50];
+	sprintf(response, "Interrupt Triggered");
+	HAL_UART_Transmit(&huart3, (uint8_t*)response, strlen(response), HAL_MAX_DELAY);
+	if(GPIO_Pin == proximityMinTop_Pin){
+		memset(response, 0, sizeof(response));
+		int val = HAL_GPIO_ReadPin(proximityMinTop_GPIO_Port, proximityMinTop_Pin);
+		sprintf(response, "Proximity Sensor: %d\n", val);
+		HAL_UART_Transmit(&huart3, (uint8_t*)response, strlen(response), HAL_MAX_DELAY);
+	}
+}
+
 /* USER CODE END 4 */
 
 /**

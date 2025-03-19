@@ -28,7 +28,8 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
-
+#include "string.h"
+#include "stdio.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -51,9 +52,11 @@ extern "C" {
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
-
 /* USER CODE BEGIN EFP */
-
+void check_uart_data();
+void Set_Motor_Direction(uint8_t direction);
+void Enable_Motor(uint8_t enable);
+void Generate_Steps(uint32_t num_steps, uint8_t direction);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -63,6 +66,10 @@ void Error_Handler(void);
 #define pcbVoltageMon5_GPIO_Port GPIOC
 #define pcbVoltageMon3_Pin GPIO_PIN_2
 #define pcbVoltageMon3_GPIO_Port GPIOC
+#define pulseSignalTop_Pin GPIO_PIN_0
+#define pulseSignalTop_GPIO_Port GPIOA
+#define pulseSignalBase_Pin GPIO_PIN_1
+#define pulseSignalBase_GPIO_Port GPIOA
 #define servoDirTop_Pin GPIO_PIN_2
 #define servoDirTop_GPIO_Port GPIOA
 #define servoDirBase_Pin GPIO_PIN_3
@@ -103,10 +110,31 @@ void Error_Handler(void);
 #define dipSwitch1_GPIO_Port GPIOC
 #define dipSwitch2_Pin GPIO_PIN_8
 #define dipSwitch2_GPIO_Port GPIOA
+#define canWakeUp_GPIO_Port GPIOB
+#define canWakeUp_Pin GPIO_PIN_5
+#define emergencySwitch_GPIO_PORT GPIOA
+#define emergencySwitch_Pin	GPIO_PIN_11
+#define spr_Input_1_GPIO_Port GPIOA
+#define spr_Input_1_Pin GPIO_PIN_12
+#define spr_Input_2_GPIO_Port GPIOD
+#define spr_Input_2_Pin GPIO_PIN_2
+#define spr_Input_3_GPIO_Port GPIOB
+#define spr_Input_3_Pin GPIO_PIN_3
+#define spr_Input_4_GPIO_Port GPIOB
+#define spr_Input_4_Pin GPIO_PIN_4
+#define spr_Output_1_GPIO_Port GPIOC
+#define spr_Output_1_Pin GPIO_PIN_10
+#define spr_Output_2_GPIO_Port GPIOC
+#define spr_Output_2_Pin GPIO_PIN_11
+#define spr_Output_3_GPIO_Port GPIOC
+#define spr_Output_3_Pin GPIO_PIN_12
+#define spr_Output_4_GPIO_Port GPIOA
+#define spr_Output_4_Pin GPIO_PIN_15
 #define led1_Pin GPIO_PIN_9
 #define led1_GPIO_Port GPIOA
 #define led2_Pin GPIO_PIN_10
 #define led2_GPIO_Port GPIOA
+
 
 /* USER CODE BEGIN Private defines */
 

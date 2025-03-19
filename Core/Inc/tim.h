@@ -43,7 +43,8 @@ void MX_TIM2_Init(void);
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* USER CODE BEGIN Prototypes */
-
+void TIM3_Init(void);
+void Delay_us(uint16_t us);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

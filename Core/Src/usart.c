@@ -21,7 +21,9 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "test.h"
+#include "string.h"
+extern volatile uint8_t data_received;
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart3;
@@ -54,8 +56,12 @@ void MX_USART3_UART_Init(void)
   {
     Error_Handler();
   }
+//  if (HAL_LIN_Init(&huart3, UART_LINBREAKDETECTLENGTH_10B) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
   /* USER CODE BEGIN USART3_Init 2 */
-
+  //__HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE); // Enable IDLE line detection
   /* USER CODE END USART3_Init 2 */
 
 }
@@ -131,7 +137,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart3_tx);
 
     /* USART3 interrupt Init */
-    HAL_NVIC_SetPriority(USART3_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(USART3_IRQn, 5, 1);
     HAL_NVIC_EnableIRQ(USART3_IRQn);
   /* USER CODE BEGIN USART3_MspInit 1 */
 
@@ -169,5 +175,81 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
+void process_command(char * cmd){
+	char response[50];
+	if(strncmp(cmd, "LED_TEST", 8) == 0){
+		snprintf(response, sizeof(response), "LED_Test_Received");
+		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)response, strlen(response));
+		blinkLEDTest();
+	}
+	if(strncmp(cmd, "CAN_TEST", 8) == 0){
+		snprintf(response, sizeof(response), "CAN_Test_Received");
+		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)response, strlen(response));
+		send_can_data();
+	}
+	if(strncmp(cmd, "PWM_TEST", 8) == 0){
+		snprintf(response, sizeof(response), "MOTOR_Test_Received");
+		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)response, strlen(response));
+		generateMotorPWM();
+	}
+	if(strncmp(cmd, "SWI_TEST", 8) == 0){
+		snprintf(response, sizeof(response), "SWITCH_Test_Received");
+		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)response, strlen(response));
+		readSwitchTest();
+	}
+	if(strncmp(cmd, "SEN_TEST", 8)== 0){
+		snprintf(response, sizeof(response), "SENSOR_Test_Received");
+		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)response, strlen(response));
+		getSensorValues();
+	}
+	if(strncmp(cmd, "VAL_TEST", 8) == 0){
+		snprintf(response, sizeof(response), "VALVE_Test_Received");
+		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)response, strlen(response));
+		valveTest();
+	}
+	if(strncmp(cmd, "ADC_TEST", 8) == 0){
+		snprintf(response, sizeof(response), "ADC_Test_Received");
+		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)response, strlen(response));
+		getADCValues();
+	}
+	if(strncmp(cmd, "LIN_TEST", 8) == 0){
+		snprintf(response, sizeof(response), "LIN_Test_Received");
+		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)response, strlen(response));
+		lin_communication();
+	}
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    if (huart->Instance == USART3) {
+        data_received = 1;
+    }
+}
+
+uint8_t pid_Calc(uint8_t ID){
+	if(ID > 0x3F) Error_Handler();
+	uint8_t IDBuf[6];
+	for(int i=0; i<6; i++){
+		IDBuf[i] = (ID>>i)&0x01;
+	}
+	uint8_t P0 = (IDBuf[0]^IDBuf[1]^IDBuf[2]^IDBuf[4])&0x01;
+	uint8_t P1 = ~((IDBuf[1]^IDBuf[3]^IDBuf[4]^IDBuf[5])&0x01);
+	ID = ID | (P0<<6) | (P1<<7);
+	return ID;
+}
+
+uint8_t checksum_Calc(uint8_t PID, uint8_t *data, uint8_t size){
+	uint8_t buffer[size+2];
+	uint16_t sum=0;
+	buffer[0] = PID;
+	for(int i=0; i<size; i++){
+		buffer[i+1] = data[i];
+	}
+	for(int i=0;i>size;i++){
+		sum = sum+buffer[i];
+		if(sum > 0xff) sum = sum - 0xff;
+	}
+	sum = 0xff - sum;
+	return sum;
+}
 
 /* USER CODE END 1 */
