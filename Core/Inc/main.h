@@ -49,6 +49,8 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
@@ -59,58 +61,50 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define pcbTempMon_Pin GPIO_PIN_0
 #define pcbTempMon_GPIO_Port GPIOC
-#define pcbVoltageMon5_Pin GPIO_PIN_1
-#define pcbVoltageMon5_GPIO_Port GPIOC
-#define pcbVoltageMon3_Pin GPIO_PIN_2
-#define pcbVoltageMon3_GPIO_Port GPIOC
-#define servoPulseTop_Pin GPIO_PIN_0
-#define servoPulseTop_GPIO_Port GPIOA
-#define servoPulseBase_Pin GPIO_PIN_1
-#define servoPulseBase_GPIO_Port GPIOA
-#define servoDirTop_Pin GPIO_PIN_2
-#define servoDirTop_GPIO_Port GPIOA
-#define servoDirBase_Pin GPIO_PIN_3
-#define servoDirBase_GPIO_Port GPIOA
-#define alarmSigTop_Pin GPIO_PIN_4
-#define alarmSigTop_GPIO_Port GPIOA
-#define alarmSigBase_Pin GPIO_PIN_5
-#define alarmSigBase_GPIO_Port GPIOA
-#define proximityMinTop_Pin GPIO_PIN_6
-#define proximityMinTop_GPIO_Port GPIOA
-#define proximityMaxTop_Pin GPIO_PIN_7
-#define proximityMaxTop_GPIO_Port GPIOA
-#define proximityMinBase_Pin GPIO_PIN_0
-#define proximityMinBase_GPIO_Port GPIOB
-#define proximityMaxBase_Pin GPIO_PIN_1
-#define proximityMaxBase_GPIO_Port GPIOB
-#define systemSwitch_Pin GPIO_PIN_2
-#define systemSwitch_GPIO_Port GPIOB
-#define servoEnableTop_Pin GPIO_PIN_10
-#define servoEnableTop_GPIO_Port GPIOB
-#define servoEnableBase_Pin GPIO_PIN_11
-#define servoEnableBase_GPIO_Port GPIOB
-#define canSpiNss_Pin GPIO_PIN_12
-#define canSpiNss_GPIO_Port GPIOB
-#define canSpiSck_Pin GPIO_PIN_13
-#define canSpiSck_GPIO_Port GPIOB
-#define canSpiMiso_Pin GPIO_PIN_14
-#define canSpiMiso_GPIO_Port GPIOB
-#define canSpiMosi_Pin GPIO_PIN_15
-#define canSpiMosi_GPIO_Port GPIOB
+#define pcb5vMon_Pin GPIO_PIN_1
+#define pcb5vMon_GPIO_Port GPIOC
+#define pcb3vMon_Pin GPIO_PIN_2
+#define pcb3vMon_GPIO_Port GPIOC
+#define pulseSignalTop_Pin GPIO_PIN_0
+#define pulseSignalTop_GPIO_Port GPIOA
+#define pulseSignalBase_Pin GPIO_PIN_1
+#define pulseSignalBase_GPIO_Port GPIOA
+#define topDir_Pin GPIO_PIN_2
+#define topDir_GPIO_Port GPIOA
+#define baseDir_Pin GPIO_PIN_3
+#define baseDir_GPIO_Port GPIOA
+#define alarmTop_Pin GPIO_PIN_4
+#define alarmTop_GPIO_Port GPIOA
+#define alarmBase_Pin GPIO_PIN_5
+#define alarmBase_GPIO_Port GPIOA
+#define proxMinTop_Pin GPIO_PIN_6
+#define proxMinTop_GPIO_Port GPIOA
+#define proxMaxTop_Pin GPIO_PIN_7
+#define proxMaxTop_GPIO_Port GPIOA
+#define proxMinBase_Pin GPIO_PIN_0
+#define proxMinBase_GPIO_Port GPIOB
+#define proxMaxBase_Pin GPIO_PIN_1
+#define proxMaxBase_GPIO_Port GPIOB
+#define systemSw_Pin GPIO_PIN_2
+#define systemSw_GPIO_Port GPIOB
+#define ENTop_Pin GPIO_PIN_10
+#define ENTop_GPIO_Port GPIOB
+#define EN_Base_Pin GPIO_PIN_11
+#define EN_Base_GPIO_Port GPIOB
 #define solenoidTop_Pin GPIO_PIN_6
 #define solenoidTop_GPIO_Port GPIOC
 #define solenoidBase_Pin GPIO_PIN_7
 #define solenoidBase_GPIO_Port GPIOC
-#define bypassSwitch_Pin GPIO_PIN_8
-#define bypassSwitch_GPIO_Port GPIOC
-#define dipSwitch1_Pin GPIO_PIN_9
-#define dipSwitch1_GPIO_Port GPIOC
-#define dipSwitch2_Pin GPIO_PIN_8
-#define dipSwitch2_GPIO_Port GPIOA
-#define led1_Pin GPIO_PIN_9
-#define led1_GPIO_Port GPIOA
-#define led2_Pin GPIO_PIN_10
+#define byps_Pin GPIO_PIN_8
+#define byps_GPIO_Port GPIOC
+#define dips2_Pin GPIO_PIN_9
+#define dips2_GPIO_Port GPIOC
+#define dips1_Pin GPIO_PIN_8
+#define dips1_GPIO_Port GPIOA
+#define led2_Pin GPIO_PIN_9
 #define led2_GPIO_Port GPIOA
+#define led1_Pin GPIO_PIN_10
+#define led1_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
